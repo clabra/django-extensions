@@ -11,9 +11,11 @@ except ImportError:
     HAS_UUID = False
 
 from django.core.exceptions import ImproperlyConfigured
-#from django.template.defaultfilters import slugify
-from slugify import slugify_url as slugify # https://pypi.python.org/pypi/awesome-slugify
 from django.db.models import DateTimeField, CharField, SlugField
+
+#from django.template.defaultfilters import slugify
+from slugify import slugify_url as slugify # See https://pypi.python.org/pypi/awesome-slugify
+import shortuuid # See https://github.com/stochastic-technologies/shortuuid
 
 try:
     from django.utils.timezone import now as datetime_now
@@ -96,7 +98,9 @@ class AutoSlugField(SlugField):
             # slugify the original field content and set next step to 2
             slug_for_field = lambda field: self.slugify_func(getattr(model_instance, field))
             slug = self.separator.join(map(slug_for_field, self._populate_from))
-            next = 2
+            #next = 2
+            next = shortuuid.uuid() # universal unique
+            next = suffix[:7] # not universal, but probability of collision is still very low
         else:
             # get slug from the current model instance
             slug = getattr(model_instance, self.attname)

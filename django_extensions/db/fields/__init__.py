@@ -14,7 +14,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.db.models import DateTimeField, CharField, SlugField
 
 #from django.template.defaultfilters import slugify
-from slugify import slugify_url as slugify # See https://pypi.python.org/pypi/awesome-slugify
+from slugify import slugify_url # See https://pypi.python.org/pypi/awesome-slugify
 import shortuuid # See https://github.com/stochastic-technologies/shortuuid
 
 try:
@@ -85,7 +85,7 @@ class AutoSlugField(SlugField):
 
     def slugify_func(self, content):
         if content:
-            return slugify(content, to_lower=True, max_length=2000, separator='-', stop_words=()) # - separator recommended by Google
+            return slugify_url(content) # slugify_url settings: to_lower, max_length, min_lemgth, stop_words=(), separator = '-'
         return ''
 
     def create_slug(self, model_instance, add):
@@ -100,7 +100,7 @@ class AutoSlugField(SlugField):
             slug = self.separator.join(map(slug_for_field, self._populate_from))
             #next = 2
             next = shortuuid.uuid() # universal unique
-            next = suffix[:7] # not universal, but probability of collision is still very low
+            next = next[:7] # not universal, but probability of collision is still very low
         else:
             # get slug from the current model instance
             slug = getattr(model_instance, self.attname)
@@ -144,10 +144,15 @@ class AutoSlugField(SlugField):
                 slug = self._slug_strip(slug)
             slug = '%s%s' % (slug, end)
             kwargs[self.attname] = slug
-            next += 1
+            next = shortuuid.uuid() # universal unique
+            next = next[:7] # not universal, but probability of collision is still very low
         return slug
 
     def pre_save(self, model_instance, add):
+        # If field value is given, don't calculate anything: set this value
+        value = super(AutoSlugField, self).pre_save(model_instance, add)
+        if value: 
+            return value
         value = force_unicode(self.create_slug(model_instance, add))
         setattr(model_instance, self.attname, value)
         return value

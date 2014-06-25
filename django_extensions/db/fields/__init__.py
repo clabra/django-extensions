@@ -12,7 +12,7 @@ except ImportError:
 
 from django.core.exceptions import ImproperlyConfigured
 #from django.template.defaultfilters import slugify
-from slugify import slugify # https://pypi.python.org/pypi/awesome-slugify
+from slugify import slugify_url as slugify # https://pypi.python.org/pypi/awesome-slugify
 from django.db.models import DateTimeField, CharField, SlugField
 
 try:

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.conf import settings
 from django.core.management import call_command
 from django.db.models import loading
@@ -103,3 +104,51 @@ class AutoSlugFieldTest(unittest.TestCase):
         o = SluggedTestModel(title='foo')
         o.save()
         self.assertEqual(o.slug, 'foo-3')
+
+    def testUnicodeSlug(self): 
+        """Using https://pypi.python.org/pypi/awesome-slugify 
+        to manage unicode
+        
+        See doc to manage translations: 
+        
+        Eg.
+        slugify_de = Slugify(pretranslate=GERMAN)
+        'ÜBER Über slugify' -> UEBER-Ueber-slugify
+        slugify = Slugify()
+        'ÜBER Über slugify' -> UBER-Uber-slugify
+        
+        """
+        txt = 'C\'est déjà l\'été.'
+        m = SluggedTestModel(title=txt)
+        m.save()
+        self.assertEqual(m.slug, "cest-deja-lete")
+
+        txt = 'Nín hǎo. Wǒ shì zhōng guó rén'
+        m = SluggedTestModel(title=txt)
+        m.save()
+        self.assertEqual(m.slug, "nin-hao-wo-shi-zhong-guo-ren")
+
+        txt = 'Компьютер'
+        m = SluggedTestModel(title=txt)
+        m.save()
+        self.assertEqual(m.slug, "kompiuter")
+
+        txt = 'jaja---lol-méméméoo--a'
+        m = SluggedTestModel(title=txt)
+        m.save()
+        self.assertEqual(m.slug, "jaja-lol-mememeoo-a")
+
+        txt = 'Cañón chiquitín'
+        m = SluggedTestModel(title=txt)
+        m.save()
+        self.assertEqual(m.slug, "canon-chiquitin")
+
+        txt = 'Я ♥ борщ'
+        m = SluggedTestModel(title=txt)
+        m.save()
+        self.assertEqual(m.slug, "ia-borshch")  # standard translation (see https://pypi.python.org/pypi/awesome-slugify for alternative translations)
+
+        txt = 'ÜBER Über slugify'               
+        m = SluggedTestModel(title=txt)
+        m.save()
+        self.assertEqual(m.slug, "uber-uber-slugify")

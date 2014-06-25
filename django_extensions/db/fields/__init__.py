@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Django Extensions additional model fields
 """
@@ -10,7 +11,8 @@ except ImportError:
     HAS_UUID = False
 
 from django.core.exceptions import ImproperlyConfigured
-from django.template.defaultfilters import slugify
+#from django.template.defaultfilters import slugify
+from slugify import slugify # https://pypi.python.org/pypi/awesome-slugify
 from django.db.models import DateTimeField, CharField, SlugField
 
 try:
@@ -81,7 +83,7 @@ class AutoSlugField(SlugField):
 
     def slugify_func(self, content):
         if content:
-            return slugify(content)
+            return slugify(content, to_lower=True, max_length=2000, separator='-', stop_words=()) # - separator recommended by Google
         return ''
 
     def create_slug(self, model_instance, add):
